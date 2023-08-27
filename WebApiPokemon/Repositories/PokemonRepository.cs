@@ -21,24 +21,28 @@ namespace WebApiPokemon.Repositories
             return await _context.Pokemon.ToListAsync();
         }
 
-        public async Task<Pokemon> GetPokemonAcsyn(int id)
+        public async Task<Pokemon> ?GetPokemonAcsyn(int id)
         {
             return await _context.Pokemon.FindAsync(id);
         }
 
-        public async Task<Pokemon> GetPokemonAcsyn(string name)
+        public async Task<Pokemon> ?GetPokemonAcsyn(string name)
         {
-            return await _context.Pokemon.Where(p => p.Name == name).FirstOrDefaultAsync();
+            return await _context.Pokemon.FirstOrDefaultAsync(p => p.Name == name);
         }
 
-        public async Task<decimal> GetPokemonRating(int id)
+        public async Task<decimal> GetPokemonAverageRating(int id)
         {
             var review = await _context.Reviews.Where(p => p.Pokemon.Id == id).ToListAsync();
-            if (review.Count() <= 0)
+            decimal reviewValue = 0;
+
+            if (review.Count() > 0)
             {
-                return 0;
+                reviewValue = (decimal)review.Sum(p => p.Rating) / review.Count();
             }
-            return ((decimal)review.Sum(p => p.Rating)/ review.Count());
+
+            return reviewValue;
+
         }
 
         public async Task<bool> PokemonExists(int id)
